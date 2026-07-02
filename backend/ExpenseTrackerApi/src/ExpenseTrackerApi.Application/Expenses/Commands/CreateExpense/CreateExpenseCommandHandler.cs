@@ -7,20 +7,19 @@ namespace ExpenseTrackerApi.Application.Expenses.Commands.CreateExpense;
 public class CreateExpenseCommandHandler : IRequestHandler<CreateExpenseCommand>
 {
     private readonly IAppDbContext _dbContext;
+    private readonly ICurrentUserService _currentUser;
 
-    public CreateExpenseCommandHandler(IAppDbContext dbContext)
+    public CreateExpenseCommandHandler(IAppDbContext dbContext, ICurrentUserService currentUser)
     {
         _dbContext = dbContext;
+        _currentUser = currentUser;
     }
 
     public async Task Handle(CreateExpenseCommand request, CancellationToken cancellationToken)
     {
-        var expense = new Expense()
-        {
-            CategoryId = request.Expense.CategoryId.Value,
-            Date = request.Expense.Date.Value,
-            Description = request.Expense.Description,
-        };
+        var userId = _currentUser.UserId;
+
+        var expense = new Expense(userId, request.Expense.CategoryId.Value, request.Expense.Amount, request.Expense.Description, request.Expense.Date.Value);
 
         await _dbContext.Expenses.AddAsync(expense, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);

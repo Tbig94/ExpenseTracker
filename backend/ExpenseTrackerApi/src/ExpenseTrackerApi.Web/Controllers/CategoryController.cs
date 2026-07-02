@@ -20,15 +20,15 @@ public class CategoryController : ControllerBase
         => Ok(await _mediator.Send(new GetCategoriesQuery()));
 
     [HttpGet("{Id}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(Guid id)
         => Ok(await _mediator.Send(new GetCategoryQuery(id)));
 
     [HttpPost(nameof(Create))]
-    public async Task<IActionResult> Create(string name)
-        => Ok(await _mediator.Send(new CreateCategoryCommand(name)));
+    public async Task<IActionResult> Create(string name, string color)
+        => Ok(await _mediator.Send(new CreateCategoryCommand(name, color)));
 
     [HttpDelete(nameof(Delete))]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(Guid id)
     {
         await _mediator.Send(new DeleteCategoryCommand(id));
         return NoContent();

@@ -3,4 +3,4 @@ using MediatR;
 
 namespace ExpenseTrackerApi.Application.Categories.Queries.GetCategory;
 
-public record GetCategoryQuery(int Id) : IRequest<CategoryDto?>;
+public record GetCategoryQuery(Guid Id) : IRequest<CategoryDto?>;

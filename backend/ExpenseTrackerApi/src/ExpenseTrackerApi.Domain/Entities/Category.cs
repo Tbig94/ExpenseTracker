@@ -1,16 +1,28 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using ExpenseTrackerApi.Domain.Common;
 
 namespace ExpenseTrackerApi.Domain.Entities;
 
-[Table("Categories")]
-public class Category
+public class Category : BaseEntity
 {
-    [Key]
-    public int Id { get; set; }
+    public Guid? UserId { get; set; }
 
-    [Length(2, 100)]
-    public required string Name { get; set; }
+    public string Name { get; set; } = null!;
+
+    public string Color { get; set; } = null!;
+
+    public bool IsDefault { get; set; }
 
     public ICollection<Expense> Expenses { get; } = [];
+
+    public Category() { }
+
+    public Category(Guid userId, string name, string color)
+    {
+        Id = Guid.NewGuid();
+        UserId = userId;
+        Name = name;
+        Color = color;
+        IsDefault = false;
+        CreatedAt = DateTime.UtcNow;
+    }
 }

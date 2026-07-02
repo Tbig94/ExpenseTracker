@@ -2,4 +2,4 @@
 
 namespace ExpenseTrackerApi.Application.Categories.Commands.DeleteCategory;
 
-public record DeleteCategoryCommand(int Id) : IRequest;
+public record DeleteCategoryCommand(Guid Id) : IRequest;

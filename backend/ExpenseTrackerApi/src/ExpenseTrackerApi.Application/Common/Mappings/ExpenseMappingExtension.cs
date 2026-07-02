@@ -20,7 +20,9 @@ public static class ExpenseMappingExtension
 
     public static Expense ToEntity(this ExpenseDto dto)
     {
-        var entity = new Expense() { CategoryId = dto.CategoryId!.Value, Date = dto.Date!.Value, Description = dto.Description };
+
+
+        var entity = new Expense(dto.UserId.Value, dto.CategoryId!.Value, dto.Amount, dto.Description, dto.Date!.Value) {  };
         return entity;
     }
 }

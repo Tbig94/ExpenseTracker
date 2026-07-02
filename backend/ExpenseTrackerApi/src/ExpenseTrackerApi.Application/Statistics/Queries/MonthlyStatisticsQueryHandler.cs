@@ -1,0 +1,52 @@
+﻿using ExpenseTrackerApi.Application.Common.Interfaces;
+using ExpenseTrackerApi.Application.Statistics.Dtos;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+
+namespace ExpenseTrackerApi.Application.Statistics.Queries;
+
+public class MonthlyStatisticsQueryHandler : IRequestHandler<MonthlyStatisticsQuery, MonthlyStatisticsDto>
+{
+    private readonly IAppDbContext _dbContext;
+
+    public MonthlyStatisticsQueryHandler(IAppDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    public async Task<MonthlyStatisticsDto> Handle(MonthlyStatisticsQuery request, CancellationToken cancellationToken)
+    {
+        var expenses = _dbContext.Expenses
+            .Include(x => x.Category)
+            .Where(x => x.Date.Year == request.Dto.Year &&
+                        x.Date.Month == request.Dto.Month &&
+                        x.UserId == request.Dto.UserId)
+            .GroupBy(x => x.Category)
+            .ToList();
+
+        // todo: budget-eket le kell kérdezni, nem param-ból jön
+        var budgets = _dbContext.Budgets
+            .Include(x => x.Category)
+            .Where(x => x.Month == request.Dto.Month &&
+                        x.Year == request.Dto.Year &&
+                        x.UserId == request.Dto.UserId)
+            //.GroupBy(x => x.Category)
+            .ToList();
+
+        var monthlyStat = new MonthlyStatisticsDto();
+
+        foreach (var item in expenses)
+        {
+            monthlyStat.CategoryStats.Add(new CategoryStatisticsDto()
+            {
+                CategoryId = item.Key.Id,
+                //Limit = request.Dto.LimitAmount,
+                Limit = budgets.First(x => x.CategoryId == item.Key.Id).LimitAmount,
+                UserId = item.Key.UserId,
+                Amount = item.Key.Expenses.Select(x => x.Amount).Sum()
+            });
+        }
+
+        return monthlyStat;
+    }
+}

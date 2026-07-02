@@ -1,5 +1,6 @@
 ﻿using ExpenseTrackerApi.Application.Expenses.Commands.CreateExpense;
 using ExpenseTrackerApi.Application.Expenses.Commands.DeleteExpense;
+using ExpenseTrackerApi.Application.Expenses.Commands.UpdateExpense;
 using ExpenseTrackerApi.Application.Expenses.Dtos;
 using ExpenseTrackerApi.Application.Expenses.Queries.GetAllExpenses;
 using ExpenseTrackerApi.Application.Expenses.Queries.GetExpensesByFilter;
@@ -17,7 +18,7 @@ public class ExpenseController : ControllerBase
     public ExpenseController(IMediator mediator) => _mediator = mediator;
 
     [HttpGet(nameof(GetByFilter))]
-    public async Task<IActionResult> GetByFilter(GetExpensesFilterDto dto)
+    public async Task<IActionResult> GetByFilter([FromQuery] GetExpensesFilterDto dto)
         => Ok(await _mediator.Send(new GetExpensesByFilterQuery(dto)));
 
     [HttpGet(nameof(GetAll))]
@@ -33,11 +34,18 @@ public class ExpenseController : ControllerBase
     }
 
     [HttpDelete(nameof(Delete))]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(Guid id)
     {
         await _mediator.Send(new DeleteExpenseCommand(id));
 
         return NoContent();
     }
 
+    [HttpPut(nameof(Update))]
+    public async Task<IActionResult> Update(ExpenseDto dto)
+    {
+        await _mediator.Send(new UpdateExpenseCommand(dto));
+
+        return NoContent();
+    }
 }

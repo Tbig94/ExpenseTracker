@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace ExpenseTrackerApi.Web.Controllers;
+namespace ExpenseTrackerApi.Web.Controllers.Base;
 
 [Route("api/[controller]")]
 [ApiController]

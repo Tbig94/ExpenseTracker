@@ -1,6 +1,7 @@
 using ExpenseTrackerApi.Application.Common.Behaviours;
 using ExpenseTrackerApi.Application.Common.Interfaces;
-using ExpenseTrackerApi.Infrastructure.Data;
+using ExpenseTrackerApi.Infrastructure.Persistence;
+using ExpenseTrackerApi.Infrastructure.Services;
 using ExpenseTrackerApi.Web.Middlewares;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,12 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<IAppDbContext, AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+
+// későbbre!!
 //builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 ConfigureMediatr(builder);
