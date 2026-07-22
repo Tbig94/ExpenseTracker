@@ -8,8 +8,9 @@ namespace ExpenseTrackerApi.Application.Common.Mappings;
 public static class CategoryMappingExtensions
 {
     public static CategoryDto ToDto(this Category entity)
-        => new(entity.Id, entity.Name, entity.Color);
+        => new(entity.Id, entity.UserId, entity.Name, entity.Color);
 
     public static Category ToEntity(this CategoryDto dto)
-        => new(dto.Id, dto.Name, dto.Color);
+        //=> new(dto.Id, dto.UserId, dto.Name, dto.Color);
+        => new (dto.UserId, dto.Name, dto.Color);
 }

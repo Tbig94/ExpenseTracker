@@ -16,7 +16,7 @@ public class Category : BaseEntity
 
     public Category() { }
 
-    public Category(Guid userId, string name, string color)
+    public Category(Guid? userId, string name, string color)
     {
         Id = Guid.NewGuid();
         UserId = userId;

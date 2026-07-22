@@ -2,17 +2,19 @@
 
 public record ExpenseDto
 {
-    public Guid? Id { get; init; }
+    public Guid? Id { get; set; }
 
-    public Guid? CategoryId { get; init; }
+    public Guid? CategoryId { get; set; }
 
-    public Guid? UserId { get; init; }
+    public string? CategoryName { get; set; }
 
-    public DateTime? Date { get; init; }
+    public Guid? UserId { get; set; }
 
-    public decimal Amount { get; init; }
+    public DateTime? Date { get; set; }
 
-    public string? Description { get; init; }
+    public decimal Amount { get; set; }
+
+    public string? Description { get; set; }
 
 
 };

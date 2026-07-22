@@ -19,11 +19,14 @@ public class GetAllExpensesQueryHandler : IRequestHandler<GetAllExpensesQuery, L
     {
         var expenses = await _dbContext.Expenses
             .Include(x => x.Category)
+            .OrderByDescending(x => x.Date)
             .ToListAsync(cancellationToken);
         var expenseDtos = new List<ExpenseDto>();
         foreach (var expense in expenses)
         {
-            expenseDtos.Add(ExpenseMappingExtension.ToDto(expense));
+            var expenseDto = ExpenseMappingExtension.ToDto(expense);
+            expenseDto.CategoryName = expense.Category.Name;
+            expenseDtos.Add(expenseDto);
         }
 
         return expenseDtos;

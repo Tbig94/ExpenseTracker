@@ -13,7 +13,9 @@ public static class ExpenseMappingExtension
             Id = entity.Id,
             Date = entity.Date,
             CategoryId = entity.CategoryId,
+            CategoryName = entity.Category.Name,
             Description = entity.Description,
+            Amount = entity.Amount
         };
         return dto;
     }

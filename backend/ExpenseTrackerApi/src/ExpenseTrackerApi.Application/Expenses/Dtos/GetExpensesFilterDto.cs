@@ -8,5 +8,9 @@ public class GetExpensesFilterDto
 
     public DateTime? MaxDate { get; set; }
 
-    public Guid? CategoryId { get; set; }
+    public decimal? MinAmount { get; set; }
+
+    public decimal? MaxAmount { get; set; }
+
+    public string? CategoryName { get; set; }
 }

@@ -24,8 +24,8 @@ public class CategoryController : ControllerBase
         => Ok(await _mediator.Send(new GetCategoryQuery(id)));
 
     [HttpPost(nameof(Create))]
-    public async Task<IActionResult> Create(string name, string color)
-        => Ok(await _mediator.Send(new CreateCategoryCommand(name, color)));
+    public async Task<IActionResult> Create([FromBody] CreateCategoryDto dto)
+        => Ok(await _mediator.Send(new CreateCategoryCommand(dto.Name, dto.Color)));
 
     [HttpDelete(nameof(Delete))]
     public async Task<IActionResult> Delete(Guid id)
@@ -35,3 +35,5 @@ public class CategoryController : ControllerBase
     }
 
 }
+
+public record CreateCategoryDto(string Name, string Color);

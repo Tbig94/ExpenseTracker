@@ -21,8 +21,28 @@ public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryComman
 
         if (category is not null)
         {
+            var budgets = await _dbContext.Budgets
+                .AsNoTrackingWithIdentityResolution()
+                .Where(x => x.CategoryId == category.Id)
+                .ToListAsync(cancellationToken);
+            var expenses = await _dbContext.Expenses
+                .AsNoTrackingWithIdentityResolution()
+                .Where(x => x.CategoryId == category.Id)
+                .ToListAsync(cancellationToken);
+            foreach (var budget in budgets)
+            {
+                _dbContext.Budgets.Attach(budget);
+                _dbContext.Budgets.Remove(budget);
+            }
+            foreach (var expense in expenses)
+            {
+                _dbContext.Expenses.Attach(expense);
+                _dbContext.Expenses.Remove(expense);
+            }
+
             _dbContext.Categories.Attach(category);
             _dbContext.Categories.Remove(category);
+
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
     }

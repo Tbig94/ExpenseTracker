@@ -21,11 +21,13 @@ builder.Services.AddDbContext<IAppDbContext, AppDbContext>(options => options.Us
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
+ConfigureCors(builder);
+
 
 // későbbre!!
 //builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
-ConfigureMediatr(builder);
+ConfigureMediator(builder);
 
 //System.AggregateException:
 //'Some services are not able to be constructed (Error while validating the service descriptor
@@ -44,6 +46,10 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();   // /scalar/v1 – interaktív UI
 }
 
+app.UseRouting();
+
+app.UseCors("AllowAngular");      // ← UseRouting UTÁN, UseAuthentication ELŐTT
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
@@ -55,7 +61,7 @@ app.MapControllers();
 app.Run();
 
 
-static void ConfigureMediatr(WebApplicationBuilder builder)
+static void ConfigureMediator(WebApplicationBuilder builder)
 {
     //builder.Services.AddMediatR(cfg =>
     //    cfg.RegisterServicesFromAssemblyContaining<Program>());
@@ -68,4 +74,18 @@ static void ConfigureMediatr(WebApplicationBuilder builder)
     //    typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
     //builder.Services.AddTransient(
     //    typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+}
+
+static void ConfigureCors(WebApplicationBuilder builder)
+{
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowAngular", policy =>
+        {
+            policy
+                .WithOrigins("http://localhost:4200")  // Angular dev szerver
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+    });
 }
