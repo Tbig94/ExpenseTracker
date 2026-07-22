@@ -18,8 +18,14 @@ public class CheckBudgetOverflowQueryHandler : IRequestHandler<CheckBudgetOverfl
 
     public async Task<BudgetStatusDto> Handle(CheckBudgetOverflowQuery request, CancellationToken cancellationToken)
     {
-        var budget = await _dbContext.Budgets.FirstOrDefaultAsync(x => x.UserId == request.UserId && x.CategoryId == request.CategoryId, cancellationToken);
-        var expense = await _dbContext.Expenses.FirstOrDefaultAsync(x => x.UserId == request.UserId && x.CategoryId == request.CategoryId, cancellationToken);
+        var budget = await _dbContext.Budgets.FirstOrDefaultAsync(x => 
+            x.UserId == request.UserId && 
+            x.CategoryId == request.CategoryId, 
+            cancellationToken);
+        var expense = await _dbContext.Expenses.FirstOrDefaultAsync(x => 
+            x.UserId == request.UserId && 
+            x.CategoryId == request.CategoryId, 
+            cancellationToken);
 
         var budgetState = BudgetStateCalculator.Calculate(budget.LimitAmount, expense.Amount);
 

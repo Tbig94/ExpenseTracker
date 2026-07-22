@@ -18,6 +18,7 @@ public class GetBudgetsQueryHandler : IRequestHandler<GetBudgetsQuery, List<Budg
     public async Task<List<BudgetDto>> Handle(GetBudgetsQuery request, CancellationToken cancellationToken)
     {
         var budgets = await _dbContext.Budgets
+            .Where(x => x.Id == request.UserId)
             .AsNoTrackingWithIdentityResolution()
             .ToListAsync(cancellationToken);
 

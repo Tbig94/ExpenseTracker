@@ -8,10 +8,12 @@ namespace ExpenseTrackerApi.Application.Statistics.Queries;
 public class MonthlyStatisticsQueryHandler : IRequestHandler<MonthlyStatisticsQuery, MonthlyStatisticsDto>
 {
     private readonly IAppDbContext _dbContext;
+    private readonly ICurrentUserService _currentUser;
 
-    public MonthlyStatisticsQueryHandler(IAppDbContext dbContext)
+    public MonthlyStatisticsQueryHandler(IAppDbContext dbContext, ICurrentUserService currentUser)
     {
         _dbContext = dbContext;
+        _currentUser = currentUser;
     }
 
     public async Task<MonthlyStatisticsDto> Handle(MonthlyStatisticsQuery request, CancellationToken cancellationToken)
@@ -20,7 +22,8 @@ public class MonthlyStatisticsQueryHandler : IRequestHandler<MonthlyStatisticsQu
             .Include(x => x.Category)
             .Where(x => x.Date.Year == request.Dto.Year &&
                         x.Date.Month == request.Dto.Month &&
-                        x.UserId == request.Dto.UserId)
+                        //x.UserId == request.Dto.UserId)
+                        x.UserId == _currentUser.UserId)
             .GroupBy(x => x.Category)
             .ToList();
 
@@ -29,7 +32,8 @@ public class MonthlyStatisticsQueryHandler : IRequestHandler<MonthlyStatisticsQu
             .Include(x => x.Category)
             .Where(x => x.Month == request.Dto.Month &&
                         x.Year == request.Dto.Year &&
-                        x.UserId == request.Dto.UserId)
+                        //x.UserId == request.Dto.UserId)
+                        x.UserId == _currentUser.UserId)
             //.GroupBy(x => x.Category)
             .ToList();
 

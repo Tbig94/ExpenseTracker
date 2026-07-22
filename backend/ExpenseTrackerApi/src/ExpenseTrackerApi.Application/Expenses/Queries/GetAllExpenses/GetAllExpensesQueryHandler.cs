@@ -9,15 +9,18 @@ namespace ExpenseTrackerApi.Application.Expenses.Queries.GetAllExpenses;
 public class GetAllExpensesQueryHandler : IRequestHandler<GetAllExpensesQuery, List<ExpenseDto>>
 {
     private readonly IAppDbContext _dbContext;
+    private readonly ICurrentUserService _currentUser;
 
-    public GetAllExpensesQueryHandler(IAppDbContext dbContext)
+    public GetAllExpensesQueryHandler(IAppDbContext dbContext, ICurrentUserService currentUser)
     {
         _dbContext = dbContext;
+        _currentUser = currentUser;
     }
 
     public async Task<List<ExpenseDto>> Handle(GetAllExpensesQuery request, CancellationToken cancellationToken)
     {
         var expenses = await _dbContext.Expenses
+            .Where(x => x.UserId == _currentUser.UserId)
             .Include(x => x.Category)
             .OrderByDescending(x => x.Date)
             .ToListAsync(cancellationToken);

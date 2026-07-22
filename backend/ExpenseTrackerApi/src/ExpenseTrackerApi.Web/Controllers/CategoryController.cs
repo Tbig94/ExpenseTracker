@@ -3,6 +3,7 @@ using ExpenseTrackerApi.Application.Categories.Commands.DeleteCategory;
 using ExpenseTrackerApi.Application.Categories.Queries.GetCategories;
 using ExpenseTrackerApi.Application.Categories.Queries.GetCategory;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpenseTrackerApi.Web.Controllers;
@@ -15,18 +16,22 @@ public class CategoryController : ControllerBase
 
     public CategoryController(IMediator mediator) => _mediator = mediator;
 
+    [Authorize]
     [HttpGet(nameof(GetAll))]
     public async Task<IActionResult> GetAll()
         => Ok(await _mediator.Send(new GetCategoriesQuery()));
 
+    [Authorize]
     [HttpGet("{Id}")]
     public async Task<IActionResult> GetById(Guid id)
         => Ok(await _mediator.Send(new GetCategoryQuery(id)));
 
+    [Authorize]
     [HttpPost(nameof(Create))]
     public async Task<IActionResult> Create([FromBody] CreateCategoryDto dto)
         => Ok(await _mediator.Send(new CreateCategoryCommand(dto.Name, dto.Color)));
 
+    [Authorize]
     [HttpDelete(nameof(Delete))]
     public async Task<IActionResult> Delete(Guid id)
     {

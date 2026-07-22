@@ -1,13 +1,19 @@
-using ExpenseTrackerApi.Application.Common.Behaviours;
 using ExpenseTrackerApi.Application.Common.Interfaces;
 using ExpenseTrackerApi.Infrastructure.Persistence;
 using ExpenseTrackerApi.Infrastructure.Services;
-using ExpenseTrackerApi.Web.Middlewares;
-using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//var configuration = builder.Configuration;
+var configuration = new ConfigurationBuilder()
+        .AddJsonFile("appsettings.json", optional: false)
+        .Build();
 
 // Add services to the container.
 
@@ -20,6 +26,55 @@ builder.Services.AddDbContext<IAppDbContext, AppDbContext>(options => options.Us
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<ITokenService, JwtTokenService>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    //.AddJwtBearer(jwtOptions =>
+    //{
+    //    jwtOptions.Authority = "ExpenseTrackerApi";
+    //    jwtOptions.Audience = "ExpenseTrackerUi";
+    //    jwtOptions.RequireHttpsMetadata = false;
+    //    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Secret"]!)),
+    //    jwtOptions.TokenValidationParameters = new()
+    //    {
+    //        ValidateIssuerSigningKey = true,
+    //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("kurva_hosszu_teszt_secret_ami_biztos_jo_lesz")),
+    //        // ...
+    //    };
+    //    jwtOptions.Events = new JwtBearerEvents
+    //    {
+    //        OnAuthenticationFailed = context =>
+    //        {
+    //            Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+    //            return Task.CompletedTask;
+    //        }
+    //    };
+    //});
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(configuration["JwtSettings:Secret"]!)
+            ),
+            ValidateIssuer = true,
+            ValidIssuer = configuration["JwtSettings:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = configuration["JwtSettings:Audience"],
+            ValidateLifetime = true
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+                return Task.CompletedTask;
+            }
+        };
+    });
+//konfiguráció hozzáadása(Issuer, Audience, SigningKey, ValidateLifetime).
+//Hiányzó app.UseAuthentication() hívás pótlása UseRouting() után és UseAuthorization() előtt.
 
 ConfigureCors(builder);
 
@@ -29,13 +84,6 @@ ConfigureCors(builder);
 
 ConfigureMediator(builder);
 
-//System.AggregateException:
-//'Some services are not able to be constructed (Error while validating the service descriptor
-//  'ServiceType: MediatR.IRequestHandler`2[ExpenseTrackerApi.Application.Categories.Queries.GetCategory.GetCategoryQuery,
-//  ExpenseTrackerApi.Application.Categories.Dtos.CategoryDto] Lifetime:
-//  Transient ImplementationType: ExpenseTrackerApi.Application.Categories.Queries.GetCategory.GetCategoryQueryHandler':
-//  Unable to resolve service for type 'ExpenseTrackerApi.Application.Common.Interfaces.IAppDbContext'
-//  while attempting to activate 'ExpenseTrackerApi.Application.Categories.Queries.GetCategory.GetCategoryQueryHandler'.) (Error while validating the service descriptor 'ServiceType: MediatR.IRequestHandler`2[ExpenseTrackerApi.Application.Categories.Queries.GetCategories.GetCategoriesQuery,System.Collections.Generic.List`1[ExpenseTrackerApi.Application.Categories.Dtos.CategoryDto]] Lifetime: Transient ImplementationType: ExpenseTrackerApi.Application.Categories.Queries.GetCategories.GetCategoriesQueryHandler': Unable to resolve service for type 'ExpenseTrackerApi.Application.Common.Interfaces.IAppDbContext' while attempting to activate 'ExpenseTrackerApi.Application.Categories.Queries.GetCategories.GetCategoriesQueryHandler'.)'
 
 var app = builder.Build();
 
@@ -46,11 +94,14 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();   // /scalar/v1 – interaktív UI
 }
 
+
 app.UseRouting();
 
 app.UseCors("AllowAngular");      // ← UseRouting UTÁN, UseAuthentication ELŐTT
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
@@ -63,17 +114,9 @@ app.Run();
 
 static void ConfigureMediator(WebApplicationBuilder builder)
 {
-    //builder.Services.AddMediatR(cfg =>
-    //    cfg.RegisterServicesFromAssemblyContaining<Program>());
-
     builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(
         typeof(ExpenseTrackerApi.Application.AssemblyReference).Assembly));
-
-    //builder.Services.AddTransient(
-    //    typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
-    //builder.Services.AddTransient(
-    //    typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 }
 
 static void ConfigureCors(WebApplicationBuilder builder)

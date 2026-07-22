@@ -1,5 +1,6 @@
 ﻿using ExpenseTrackerApi.Application.Dashboard.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpenseTrackerApi.Web.Controllers;
@@ -15,6 +16,7 @@ public class DashboardController : ControllerBase
         _mediator = mediator;
     }
 
+    [Authorize]
     [HttpGet(nameof(GetDashboardData))]
     public async Task<IActionResult> GetDashboardData()
         => Ok(await _mediator.Send(new GetComplexStatisticsQuery()));

@@ -4,6 +4,7 @@ using ExpenseTrackerApi.Application.Budgets.Dtos;
 using ExpenseTrackerApi.Application.Budgets.Queries.CheckBudgetOVerflow;
 using ExpenseTrackerApi.Application.Budgets.Queries.GetBudgets;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpenseTrackerApi.Web.Controllers;
@@ -19,11 +20,13 @@ public class BudgetController : ControllerBase
         _mediator = mediator;
     }
 
+    [Authorize]
     [HttpGet(nameof(GetAll))]
-    public async Task<IActionResult> GetAll()
-        => Ok(await _mediator.Send(new GetBudgetsQuery()));
+    public async Task<IActionResult> GetAll(Guid userId)
+        => Ok(await _mediator.Send(new GetBudgetsQuery(userId)));
 
 
+    [Authorize]
     [HttpPost(nameof(Create))]
     public async Task<IActionResult> Create(BudgetDto budget)
     {
@@ -32,6 +35,7 @@ public class BudgetController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete(nameof(Delete))]
     public async Task<IActionResult> Delete(Guid userId, Guid categoryId)
     {
@@ -40,6 +44,7 @@ public class BudgetController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpGet(nameof(CheckBudgetOverflow))]
     public async Task<IActionResult> CheckBudgetOverflow(Guid userId, Guid categoryId)
         => Ok(await _mediator.Send(new CheckBudgetOverflowQuery(userId, categoryId)));

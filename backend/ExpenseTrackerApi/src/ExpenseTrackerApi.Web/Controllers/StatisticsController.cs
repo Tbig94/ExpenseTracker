@@ -2,6 +2,7 @@
 using ExpenseTrackerApi.Application.Statistics.Dtos;
 using ExpenseTrackerApi.Application.Statistics.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ExpenseTrackerApi.Web.Controllers;
@@ -17,6 +18,7 @@ public class StatisticsController : ControllerBase
         _mediator = mediator;
     }
 
+    [Authorize]
     [HttpGet(nameof(GetMonthlyStatistics))]
     public async Task<MonthlyStatisticsDto> GetMonthlyStatistics([FromQuery] BudgetDto dto)
     {

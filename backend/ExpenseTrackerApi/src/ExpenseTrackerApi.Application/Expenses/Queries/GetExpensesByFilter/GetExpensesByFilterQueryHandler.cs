@@ -9,10 +9,12 @@ namespace ExpenseTrackerApi.Application.Expenses.Queries.GetExpensesByFilter;
 public class GetExpensesByFilterQueryHandler : IRequestHandler<GetExpensesByFilterQuery, List<ExpenseDto>>
 {
     private readonly IAppDbContext _dbContext;
+    private readonly ICurrentUserService _currentUser;
 
-    public GetExpensesByFilterQueryHandler(IAppDbContext dbContext)
+    public GetExpensesByFilterQueryHandler(IAppDbContext dbContext, ICurrentUserService currentUser)
     {
         _dbContext = dbContext;
+        _currentUser = currentUser;
     }
 
     public async Task<List<ExpenseDto>> Handle(GetExpensesByFilterQuery request, CancellationToken cancellationToken)
@@ -21,6 +23,7 @@ public class GetExpensesByFilterQueryHandler : IRequestHandler<GetExpensesByFilt
 
         var q = _dbContext.Expenses
             .Include(x => x.Category)
+            .Where(x => x.UserId == _currentUser.UserId)
             .AsNoTrackingWithIdentityResolution()
             .AsQueryable();
         if (request.Filter.MinDate is not null)

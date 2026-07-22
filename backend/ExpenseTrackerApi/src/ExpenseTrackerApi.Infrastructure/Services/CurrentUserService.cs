@@ -16,13 +16,24 @@ public class CurrentUserService : ICurrentUserService
     {
         get
         {
-            //var claim = _httpContextAccessor.HttpContext?.User.Claims
-            //  .First().Value;
+            var claim = _httpContextAccessor.HttpContext?.User.Claims
+              .First().Value;
 
-            //return Guid.TryParse(claim, out var id)
-            //  ? id
-            //      : throw new UnauthorizedAccessException("Nem azonosított felhasználó.");
-            return new Guid("AAAAAAAA-0000-0000-0000-000000000001");
+            return Guid.TryParse(claim, out var id)
+                ? id
+                : throw new UnauthorizedAccessException("Nem azonosított felhasználó.");
         }
+    }
+
+    public string HashPassword(string rawPassword)
+    {
+        // A workFactor (cost) alapértelmezetten 11-12, ez ma a biztonságos/optimális
+        return BCrypt.Net.BCrypt.HashPassword(rawPassword, workFactor: 12);
+    }
+
+    public bool VerifyPassword(string rawPassword, string storedHashFromDb)
+    {
+        // A Verify automatikusan kiolvassa a sót a tárolt hash-ből
+        return BCrypt.Net.BCrypt.Verify(rawPassword, storedHashFromDb);
     }
 }

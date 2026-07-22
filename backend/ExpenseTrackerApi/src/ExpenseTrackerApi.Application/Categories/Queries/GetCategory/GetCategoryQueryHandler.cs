@@ -9,17 +9,22 @@ namespace ExpenseTrackerApi.Application.Categories.Queries.GetCategory;
 public class GetCategoryQueryHandler : IRequestHandler<GetCategoryQuery, CategoryDto?>
 {
     private readonly IAppDbContext _dbContext;
+    private readonly ICurrentUserService _currentUser;
 
-    public GetCategoryQueryHandler(IAppDbContext dbContext)
+    public GetCategoryQueryHandler(IAppDbContext dbContext, ICurrentUserService currentUser)
     {
         _dbContext = dbContext;
+        _currentUser = currentUser;
     }
 
     public async Task<CategoryDto?> Handle(GetCategoryQuery request, CancellationToken cancellationToken)
     {
         var category = await _dbContext.Categories
             .AsNoTrackingWithIdentityResolution()
-            .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+            .FirstOrDefaultAsync(x => 
+                x.Id == request.Id, //&&
+                //x.UserId == _currentUser.UserId,
+                cancellationToken);
 
         if (category is not null)
         {

@@ -9,15 +9,18 @@ namespace ExpenseTrackerApi.Application.Categories.Queries.GetCategories;
 public class GetCategoriesQueryHandler : IRequestHandler<GetCategoriesQuery, List<CategoryDto>>
 {
     private readonly IAppDbContext _dbContext;
+    private readonly ICurrentUserService _currentUser;
 
-    public GetCategoriesQueryHandler(IAppDbContext dbContext)
+    public GetCategoriesQueryHandler(IAppDbContext dbContext, ICurrentUserService currentUser)
     {
         _dbContext = dbContext;
+        _currentUser = currentUser;
     }
 
     public async Task<List<CategoryDto>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
     {
         var categories = _dbContext.Categories
+            .Where(x => x.UserId == _currentUser.UserId || x.UserId == null)
             .AsNoTrackingWithIdentityResolution();
 
         var dtos = new List<CategoryDto>();
